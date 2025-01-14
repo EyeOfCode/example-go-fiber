@@ -15,6 +15,7 @@
 - websocket
 - upload file
 - redis
+- golangci-lint
 
 ## setup
 
@@ -44,6 +45,8 @@ clear_on_rebuild = true
 - cp .env.example .env
 - init swagger $swag init -g cmd/api/main.go
 - build $go build cmd/api/main.go
+- lint $golangci-lint run
+- format $gofmt -w .
 
 ## how to use
 
