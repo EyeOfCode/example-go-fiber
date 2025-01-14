@@ -44,17 +44,17 @@ func (m *AuthMiddleware) Protected() fiber.Handler {
 		}
 
 		if err := m.userService.ValidateTokenWithRedis(c.Context(), token); err != nil {
-            return utils.SendError(c, http.StatusUnauthorized, "Token is invalid or has been revoked")
-        }
+			return utils.SendError(c, http.StatusUnauthorized, "Token is invalid or has been revoked")
+		}
 
 		user, err := m.userService.FindByID(c.Context(), claims.UserID)
 		if err != nil {
 			return utils.SendError(c, http.StatusUnauthorized, "User not found")
 		}
 
-        c.Locals("user", user)
-        c.Locals("token", token)
-        c.Locals("claims", claims)
+		c.Locals("user", user)
+		c.Locals("token", token)
+		c.Locals("claims", claims)
 		return c.Next()
 	}
 }

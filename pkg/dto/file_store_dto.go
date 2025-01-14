@@ -11,12 +11,12 @@ type FileRequest struct {
 }
 
 type FileStoreRequest struct {
-	Files 		[]multipart.FileHeader `json:"files" binding:"required"`
-	ShopID    primitive.ObjectID 		 `json:"shop_id" binding:"required"`
+	Files  []multipart.FileHeader `json:"files" binding:"required"`
+	ShopID primitive.ObjectID     `json:"shop_id" binding:"required"`
 }
 
 type FileStoreUploadResponse struct {
-	Name      string             `json:"name"`
-	BasePath  string             `json:"base_path"`
-	Extension string             `json:"extension"`
+	Name      string `json:"name"`
+	BasePath  string `json:"base_path"`
+	Extension string `json:"extension"`
 }

@@ -14,6 +14,7 @@ type Pagination struct {
 	TotalPages int         `json:"totalPages"`
 	Items      interface{} `json:"items"`
 }
+
 func PaginationParams(c *fiber.Ctx) (page, pageSize int) {
 	pageStr := c.Query("page", "1")
 	page, err := strconv.Atoi(pageStr)

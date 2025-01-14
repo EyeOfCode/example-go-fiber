@@ -34,14 +34,14 @@ func (s *FileStoreService) Uploads(ctx context.Context, payload *dto.FileStoreRe
 	var fileStore []*model.FileStore
 	for i := range resUpload {
 		fileStore = append(fileStore, &model.FileStore{
-			ID:     primitive.NewObjectID(),
-			Name:   resUpload[i].Name,
-			BasePath: resUpload[i].BasePath,
+			ID:        primitive.NewObjectID(),
+			Name:      resUpload[i].Name,
+			BasePath:  resUpload[i].BasePath,
 			Extension: resUpload[i].Extension,
-			ShopID: shop.ID,
+			ShopID:    shop.ID,
 		})
 	}
-	
+
 	createdFileStore, err := s.fileStoreRepo.Create(ctx, fileStore)
 	if err != nil {
 		return nil, err

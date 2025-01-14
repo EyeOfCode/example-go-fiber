@@ -41,7 +41,7 @@ func (app *Application) SetupRoutes() {
 	auth := v1.Group("/auth")
 	auth.Post("/register", app.UserHandler.Register)
 	auth.Post("/login", app.UserHandler.Login)
-	
+
 	// Other routes
 	other := public.Group("/other")
 	other.Use(middleware.RateLimit(20, time.Minute))
@@ -59,7 +59,7 @@ func (app *Application) SetupRoutes() {
 	user := private.Group("/auth")
 	user.Get("/logout", app.UserHandler.Logout)
 	user.Post("/refresh", app.UserHandler.RefreshToken)
-	
+
 	// Admin only routes
 	adminGroup := private.Group("/admin")
 	adminGroup.Use(app.AuthMiddleware.RequireRoles(utils.Role("admin")))

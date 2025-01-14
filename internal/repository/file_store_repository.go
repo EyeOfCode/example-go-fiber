@@ -51,7 +51,7 @@ func (r *fileStoreRepository) FindOne(ctx context.Context, query bson.M) (*model
 	return &result, nil
 }
 
-func (r *fileStoreRepository) FindById(ctx context.Context,id primitive.ObjectID) (*model.FileStore, error) {
+func (r *fileStoreRepository) FindById(ctx context.Context, id primitive.ObjectID) (*model.FileStore, error) {
 	var result model.FileStore
 	err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&result)
 	if err != nil {
@@ -67,18 +67,18 @@ func (r *fileStoreRepository) Create(ctx context.Context, fileStore []*model.Fil
 	now := time.Now()
 	documents := make([]interface{}, len(fileStore))
 	for i, fs := range fileStore {
-			fs.CreatedAt = now
-			fs.UpdatedAt = now
-			documents[i] = fs
+		fs.CreatedAt = now
+		fs.UpdatedAt = now
+		documents[i] = fs
 	}
 	result, err := r.collection.InsertMany(ctx, documents)
 	if err != nil {
 		return nil, err
 	}
 	for i, insertedID := range result.InsertedIDs {
-			if oid, ok := insertedID.(primitive.ObjectID); ok {
-					fileStore[i].ID = oid
-			}
+		if oid, ok := insertedID.(primitive.ObjectID); ok {
+			fileStore[i].ID = oid
+		}
 	}
 	return fileStore, nil
 }
@@ -86,9 +86,8 @@ func (r *fileStoreRepository) Create(ctx context.Context, fileStore []*model.Fil
 func (r *fileStoreRepository) Delete(ctx context.Context, fileStore *model.FileStore, id primitive.ObjectID) error {
 	filePath := filepath.Join(fileStore.BasePath, fileStore.Name)
 	if err := os.Remove(filePath); err != nil {
-			return err
+		return err
 	}
 	_, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
 	return err
 }
-

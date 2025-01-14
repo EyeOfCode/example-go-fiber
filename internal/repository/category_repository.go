@@ -31,7 +31,7 @@ func (r *categoryRepository) Create(ctx context.Context, category *model.Categor
 	category.ID = primitive.NewObjectID()
 	category.CreatedAt = time.Now()
 	category.UpdatedAt = time.Now()
-	
+
 	_, err := r.collection.InsertOne(ctx, category)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (r *categoryRepository) List(ctx context.Context) ([]model.Category, error)
 		return nil, err
 	}
 	defer cursor.Close(ctx)
-	
+
 	var categories []model.Category
 	if err := cursor.All(ctx, &categories); err != nil {
 		return nil, err

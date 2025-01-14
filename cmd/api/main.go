@@ -107,14 +107,14 @@ func setupServer(cfg *config.Config) (*routes.Application, error) {
 
 	// Create application instance
 	application := &routes.Application{
-		App:            app,
-		UserHandler:    userHandler,
-		ShopHandler:    shopHandler,
-		CategoryHandler: categoryHandler,
+		App:              app,
+		UserHandler:      userHandler,
+		ShopHandler:      shopHandler,
+		CategoryHandler:  categoryHandler,
 		FileStoreHandler: fileStoreHandler,
-		OtherHandler:   otherHandler,
-		AuthMiddleware:  authMiddleware,
-		Config:         cfg,
+		OtherHandler:     otherHandler,
+		AuthMiddleware:   authMiddleware,
+		Config:           cfg,
 	}
 
 	// Setup routes

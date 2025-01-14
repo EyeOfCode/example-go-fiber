@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-
 type OtherHandler struct {
 	otherService *service.ArtworkApiService
 }

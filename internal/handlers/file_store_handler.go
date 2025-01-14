@@ -15,13 +15,13 @@ import (
 
 type FileStoreHandler struct {
 	fileStoreService *service.FileStoreService
-	shopService *service.ShopService
+	shopService      *service.ShopService
 }
 
 func NewFileStoreHandler(fileStoreService *service.FileStoreService, shopService *service.ShopService) *FileStoreHandler {
 	return &FileStoreHandler{
 		fileStoreService: fileStoreService,
-		shopService: shopService,
+		shopService:      shopService,
 	}
 }
 

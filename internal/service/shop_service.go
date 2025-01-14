@@ -21,7 +21,7 @@ func NewShopService(shopRepo repository.ShopRepository) *ShopService {
 	}
 }
 func (s *ShopService) FindAll(ctx context.Context, query bson.M, opts *options.FindOptions) ([]model.Shop, error) {
-    return s.shopRepo.FindAll(ctx, query, opts)
+	return s.shopRepo.FindAll(ctx, query, opts)
 }
 
 func (s *ShopService) Count(ctx context.Context, query bson.D) (int64, error) {
@@ -30,8 +30,8 @@ func (s *ShopService) Count(ctx context.Context, query bson.D) (int64, error) {
 
 func (s *ShopService) Create(ctx context.Context, payload *dto.ShopRequest, user *model.User) (*model.Shop, error) {
 	shop := &model.Shop{
-		Name: payload.Name, 
-		Budget: payload.Budget, 
+		Name:      payload.Name,
+		Budget:    payload.Budget,
 		CreatedBy: user.ID,
 	}
 	createdShop, err := s.shopRepo.Create(ctx, shop)
@@ -47,8 +47,8 @@ func (s *ShopService) FindByID(ctx context.Context, id primitive.ObjectID) (*mod
 
 func (s *ShopService) Update(ctx context.Context, id primitive.ObjectID, payload *dto.ShopRequest) (*model.Shop, error) {
 	shop := &dto.UpdateShopRequest{
-		Name: payload.Name, 
-		Budget: payload.Budget, 
+		Name:   payload.Name,
+		Budget: payload.Budget,
 	}
 
 	updatedShop, err := s.shopRepo.UpdateByID(ctx, id, shop)

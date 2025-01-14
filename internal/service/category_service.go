@@ -21,7 +21,7 @@ func NewCategoryService(categoryRepo repository.CategoryRepository) *CategorySer
 
 func (s *CategoryService) Create(ctx context.Context, payload *dto.CategoryRequest, shop *model.Shop) (*model.Category, error) {
 	category := &model.Category{
-		Name: payload.Name, 
+		Name:   payload.Name,
 		ShopID: shop.ID,
 	}
 

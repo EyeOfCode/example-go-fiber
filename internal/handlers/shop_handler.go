@@ -19,51 +19,51 @@ import (
 )
 
 type ShopHandler struct {
-    shopService *service.ShopService
-    fileStoreService *service.FileStoreService
+	shopService      *service.ShopService
+	fileStoreService *service.FileStoreService
 }
 
 func NewShopHandler(shopService *service.ShopService, fileStoreService *service.FileStoreService) *ShopHandler {
-    return &ShopHandler{
-        shopService: shopService,
-        fileStoreService: fileStoreService,
-    }
+	return &ShopHandler{
+		shopService:      shopService,
+		fileStoreService: fileStoreService,
+	}
 }
 
 // @Summary List shops
-// @Description Get paginated list of shops with optional filtering 
+// @Description Get paginated list of shops with optional filtering
 // @Tags shop
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param page query int false "Page number" default(1) 
+// @Param page query int false "Page number" default(1)
 // @Param page_size query int false "Page size" default(10)
 // @Param name query string false "Filter by name"
 // @Success 200
 // @Router /shop/list [get]
 func (s *ShopHandler) ShopList(c *fiber.Ctx) error {
-    page, pageSize := utils.PaginationParams(c)
+	page, pageSize := utils.PaginationParams(c)
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-    total, err := s.shopService.Count(ctx, bson.D{})
-    if err != nil {
-        return utils.SendError(c, http.StatusInternalServerError, "Failed to count shops: "+err.Error())
-    }
+	total, err := s.shopService.Count(ctx, bson.D{})
+	if err != nil {
+		return utils.SendError(c, http.StatusInternalServerError, "Failed to count shops: "+err.Error())
+	}
 
-    opts := options.Find().
-        SetSkip(int64((page - 1) * pageSize)).
-        SetLimit(int64(pageSize)).
-        SetSort(bson.D{{Key: "created_at", Value: -1}})
+	opts := options.Find().
+		SetSkip(int64((page - 1) * pageSize)).
+		SetLimit(int64(pageSize)).
+		SetSort(bson.D{{Key: "created_at", Value: -1}})
 
-    shops, err := s.shopService.FindAll(ctx, bson.M{}, opts)
-    if err != nil {
-        return utils.SendError(c, http.StatusInternalServerError, err.Error())
-    }
+	shops, err := s.shopService.FindAll(ctx, bson.M{}, opts)
+	if err != nil {
+		return utils.SendError(c, http.StatusInternalServerError, err.Error())
+	}
 
-    response := utils.CreatePagination(page, pageSize, total, shops)
-    return utils.SendSuccess(c, http.StatusOK, response)
+	response := utils.CreatePagination(page, pageSize, total, shops)
+	return utils.SendSuccess(c, http.StatusOK, response)
 }
 
 // @Summary Create Shop endpoint
@@ -77,53 +77,53 @@ func (s *ShopHandler) ShopList(c *fiber.Ctx) error {
 // @Param files formData []file false "Multiple files to upload"
 // @Router /shop [post]
 func (s *ShopHandler) CreateShop(c *fiber.Ctx) error {
-    var req dto.ShopRequest
+	var req dto.ShopRequest
 
-    req.Name = c.FormValue("name")
-    req.Budget, _ = strconv.ParseFloat(c.FormValue("budget"), 64)
+	req.Name = c.FormValue("name")
+	req.Budget, _ = strconv.ParseFloat(c.FormValue("budget"), 64)
 
-    if err := utils.ValidateStruct(&req); err != nil {
-        return utils.SendValidationError(c, err)
-    }
+	if err := utils.ValidateStruct(&req); err != nil {
+		return utils.SendValidationError(c, err)
+	}
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-    user, ok := middleware.GetUserFromContext(c)
-    if !ok {
-        return utils.SendError(c, http.StatusUnauthorized, "Invalid session")
-    }
+	user, ok := middleware.GetUserFromContext(c)
+	if !ok {
+		return utils.SendError(c, http.StatusUnauthorized, "Invalid session")
+	}
 
-    shop, err := s.shopService.Create(ctx, &req, user)
-    if err != nil {
-        return utils.SendError(c, http.StatusInternalServerError, err.Error())
-    }
+	shop, err := s.shopService.Create(ctx, &req, user)
+	if err != nil {
+		return utils.SendError(c, http.StatusInternalServerError, err.Error())
+	}
 
-    var filesResponse []*model.FileStore
-    if form, err := c.MultipartForm(); err == nil {
-        if files := form.File["files"]; len(files) > 0 {
-            var fileHeaders []multipart.FileHeader
-            for _, file := range files {
-                fileHeaders = append(fileHeaders, *file)
-            }
-            reqUpload := dto.FileStoreRequest{Files: fileHeaders, ShopID: shop.ID}
-            resUploads, err := s.fileStoreService.Uploads(ctx, &reqUpload, shop)
-            if err != nil {
-                return utils.SendError(c, http.StatusInternalServerError, err.Error())
-            }
-            filesResponse = resUploads
-        }
-    }
+	var filesResponse []*model.FileStore
+	if form, err := c.MultipartForm(); err == nil {
+		if files := form.File["files"]; len(files) > 0 {
+			var fileHeaders []multipart.FileHeader
+			for _, file := range files {
+				fileHeaders = append(fileHeaders, *file)
+			}
+			reqUpload := dto.FileStoreRequest{Files: fileHeaders, ShopID: shop.ID}
+			resUploads, err := s.fileStoreService.Uploads(ctx, &reqUpload, shop)
+			if err != nil {
+				return utils.SendError(c, http.StatusInternalServerError, err.Error())
+			}
+			filesResponse = resUploads
+		}
+	}
 
-    res := &dto.UpdateShopResponse{
-        ID:        shop.ID,
-        Name:      shop.Name,
-        Budget:    shop.Budget,
-        Files:     filesResponse,
-        CreatedAt: shop.CreatedAt,
-        UpdatedAt: shop.UpdatedAt,
-    }
-    return utils.SendSuccess(c, http.StatusCreated, res)
+	res := &dto.UpdateShopResponse{
+		ID:        shop.ID,
+		Name:      shop.Name,
+		Budget:    shop.Budget,
+		Files:     filesResponse,
+		CreatedAt: shop.CreatedAt,
+		UpdatedAt: shop.UpdatedAt,
+	}
+	return utils.SendSuccess(c, http.StatusCreated, res)
 }
 
 // @Summary Get Shop endpoint
@@ -135,22 +135,22 @@ func (s *ShopHandler) CreateShop(c *fiber.Ctx) error {
 // @Param id path string true "Shop ID"
 // @Router /shop/{id} [get]
 func (s *ShopHandler) GetShop(c *fiber.Ctx) error {
-    id := c.Params("id")
+	id := c.Params("id")
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-    objID, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        return utils.SendError(c, http.StatusBadRequest, "Invalid ID format")
-    }
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return utils.SendError(c, http.StatusBadRequest, "Invalid ID format")
+	}
 
-    shop, err := s.shopService.FindByID(ctx, objID)
-    if err != nil {
-        return utils.SendError(c, http.StatusNotFound, "Failed to find shop")
-    }
+	shop, err := s.shopService.FindByID(ctx, objID)
+	if err != nil {
+		return utils.SendError(c, http.StatusNotFound, "Failed to find shop")
+	}
 
-    return utils.SendSuccess(c, http.StatusOK, shop)
+	return utils.SendSuccess(c, http.StatusOK, shop)
 }
 
 // @Summary Update Shop endpoint
@@ -165,79 +165,79 @@ func (s *ShopHandler) GetShop(c *fiber.Ctx) error {
 // @Param files formData []file false "Multiple files to upload"
 // @Router /shop/{id} [put]
 func (s *ShopHandler) UpdateShop(c *fiber.Ctx) error {
-    var req dto.ShopRequest
+	var req dto.ShopRequest
 
-    req.Name = c.FormValue("name")
-    req.Budget, _ = strconv.ParseFloat(c.FormValue("budget"), 64)
+	req.Name = c.FormValue("name")
+	req.Budget, _ = strconv.ParseFloat(c.FormValue("budget"), 64)
 
-    if err := utils.ValidateStruct(&req); err != nil {
-        return utils.SendValidationError(c, err)
-    }
+	if err := utils.ValidateStruct(&req); err != nil {
+		return utils.SendValidationError(c, err)
+	}
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-    user, ok := middleware.GetUserFromContext(c)
-    if !ok {
-        return utils.SendError(c, http.StatusUnauthorized, "Invalid session")
-    }
+	user, ok := middleware.GetUserFromContext(c)
+	if !ok {
+		return utils.SendError(c, http.StatusUnauthorized, "Invalid session")
+	}
 
-    id := c.Params("id")
-    shopId, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        return utils.SendError(c, http.StatusBadRequest, "Invalid ID format")
-    }
+	id := c.Params("id")
+	shopId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return utils.SendError(c, http.StatusBadRequest, "Invalid ID format")
+	}
 
-    shop, err := s.shopService.FindByID(ctx, shopId)
-    if err != nil || shop == nil {
-        return utils.SendError(c, http.StatusNotFound, "Failed to find shop")
-    }
+	shop, err := s.shopService.FindByID(ctx, shopId)
+	if err != nil || shop == nil {
+		return utils.SendError(c, http.StatusNotFound, "Failed to find shop")
+	}
 
-    if shop.CreatedBy != user.ID {
-        return utils.SendError(c, http.StatusUnauthorized, "Unauthorized")
-    }
+	if shop.CreatedBy != user.ID {
+		return utils.SendError(c, http.StatusUnauthorized, "Unauthorized")
+	}
 
-    shop, err = s.shopService.Update(ctx, shopId, &req)
-    if err != nil {
-        return utils.SendError(c, http.StatusInternalServerError, err.Error())
-    }
+	shop, err = s.shopService.Update(ctx, shopId, &req)
+	if err != nil {
+		return utils.SendError(c, http.StatusInternalServerError, err.Error())
+	}
 
-    filesOnShop, err := s.fileStoreService.FindAll(ctx, bson.M{"shop_id": shop.ID})
-    if err != nil {
-        return utils.SendError(c, http.StatusInternalServerError, err.Error())
-    }
-    for _, file := range filesOnShop {
-        err = s.fileStoreService.Delete(ctx, file.ID)
-        if err != nil {
-            return utils.SendError(c, http.StatusInternalServerError, err.Error())
-        }
-    }
+	filesOnShop, err := s.fileStoreService.FindAll(ctx, bson.M{"shop_id": shop.ID})
+	if err != nil {
+		return utils.SendError(c, http.StatusInternalServerError, err.Error())
+	}
+	for _, file := range filesOnShop {
+		err = s.fileStoreService.Delete(ctx, file.ID)
+		if err != nil {
+			return utils.SendError(c, http.StatusInternalServerError, err.Error())
+		}
+	}
 
-    var filesResponse []*model.FileStore
-    if form, err := c.MultipartForm(); err == nil {
-        if files := form.File["files"]; len(files) > 0 {
-            var fileHeaders []multipart.FileHeader
-            for _, file := range files {
-                fileHeaders = append(fileHeaders, *file)
-            }
-            reqUpload := dto.FileStoreRequest{Files: fileHeaders, ShopID: shop.ID}
-            resUploads, err := s.fileStoreService.Uploads(ctx, &reqUpload, shop)
-            if err != nil {
-                return utils.SendError(c, http.StatusInternalServerError, err.Error())
-            }
-            filesResponse = resUploads
-        }
-    }
+	var filesResponse []*model.FileStore
+	if form, err := c.MultipartForm(); err == nil {
+		if files := form.File["files"]; len(files) > 0 {
+			var fileHeaders []multipart.FileHeader
+			for _, file := range files {
+				fileHeaders = append(fileHeaders, *file)
+			}
+			reqUpload := dto.FileStoreRequest{Files: fileHeaders, ShopID: shop.ID}
+			resUploads, err := s.fileStoreService.Uploads(ctx, &reqUpload, shop)
+			if err != nil {
+				return utils.SendError(c, http.StatusInternalServerError, err.Error())
+			}
+			filesResponse = resUploads
+		}
+	}
 
-    res := &dto.UpdateShopResponse{
-        ID:        shop.ID,
-        Name:      shop.Name,
-        Budget:    shop.Budget,
-        Files:     filesResponse,
-        CreatedAt: shop.CreatedAt,
-        UpdatedAt: shop.UpdatedAt,
-    }
-    return utils.SendSuccess(c, http.StatusOK, res)
+	res := &dto.UpdateShopResponse{
+		ID:        shop.ID,
+		Name:      shop.Name,
+		Budget:    shop.Budget,
+		Files:     filesResponse,
+		CreatedAt: shop.CreatedAt,
+		UpdatedAt: shop.UpdatedAt,
+	}
+	return utils.SendSuccess(c, http.StatusOK, res)
 }
 
 // @Summary Delete Shop endpoint
@@ -249,45 +249,45 @@ func (s *ShopHandler) UpdateShop(c *fiber.Ctx) error {
 // @Param id path string true "Shop ID"
 // @Router /shop/{id} [delete]
 func (s *ShopHandler) DeleteShop(c *fiber.Ctx) error {
-    id := c.Params("id")
+	id := c.Params("id")
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-    shopId, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        return utils.SendError(c, http.StatusBadRequest, "Invalid ID format")
-    }
+	shopId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return utils.SendError(c, http.StatusBadRequest, "Invalid ID format")
+	}
 
-    shop, err := s.shopService.FindByID(ctx, shopId)
-    if err != nil || shop == nil {
-        return utils.SendError(c, http.StatusNotFound, "Failed to find shop")
-    }
+	shop, err := s.shopService.FindByID(ctx, shopId)
+	if err != nil || shop == nil {
+		return utils.SendError(c, http.StatusNotFound, "Failed to find shop")
+	}
 
-    user, ok := middleware.GetUserFromContext(c)
-    if !ok {
-        return utils.SendError(c, http.StatusUnauthorized, "Invalid session")
-    }
+	user, ok := middleware.GetUserFromContext(c)
+	if !ok {
+		return utils.SendError(c, http.StatusUnauthorized, "Invalid session")
+	}
 
-    if shop.CreatedBy != user.ID {
-        return utils.SendError(c, http.StatusUnauthorized, "Unauthorized")
-    }
+	if shop.CreatedBy != user.ID {
+		return utils.SendError(c, http.StatusUnauthorized, "Unauthorized")
+	}
 
-    filesOnShop, err := s.fileStoreService.FindAll(ctx, bson.M{"shop_id": shop.ID})
-    if err != nil {
-        return utils.SendError(c, http.StatusInternalServerError, err.Error())
-    }
-    for _, file := range filesOnShop {
-        err = s.fileStoreService.Delete(ctx, file.ID)
-        if err != nil {
-            return utils.SendError(c, http.StatusInternalServerError, err.Error())
-        }
-    }
+	filesOnShop, err := s.fileStoreService.FindAll(ctx, bson.M{"shop_id": shop.ID})
+	if err != nil {
+		return utils.SendError(c, http.StatusInternalServerError, err.Error())
+	}
+	for _, file := range filesOnShop {
+		err = s.fileStoreService.Delete(ctx, file.ID)
+		if err != nil {
+			return utils.SendError(c, http.StatusInternalServerError, err.Error())
+		}
+	}
 
-    err = s.shopService.Delete(ctx, shopId)
-    if err != nil {
-        return utils.SendError(c, http.StatusInternalServerError, "test")
-    }
+	err = s.shopService.Delete(ctx, shopId)
+	if err != nil {
+		return utils.SendError(c, http.StatusInternalServerError, "test")
+	}
 
-    return utils.SendSuccess(c, http.StatusOK, nil, "Shop deleted successfully")
+	return utils.SendSuccess(c, http.StatusOK, nil, "Shop deleted successfully")
 }

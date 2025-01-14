@@ -15,13 +15,13 @@ import (
 
 type CategoryHandler struct {
 	categoryService *service.CategoryService
-	shopService *service.ShopService
+	shopService     *service.ShopService
 }
 
 func NewCategoryHandler(categoryService *service.CategoryService, shopService *service.ShopService) *CategoryHandler {
 	return &CategoryHandler{
 		categoryService: categoryService,
-		shopService: shopService,
+		shopService:     shopService,
 	}
 }
 

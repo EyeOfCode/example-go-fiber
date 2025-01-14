@@ -13,6 +13,7 @@ type ArtworkApiService struct {
 	httpServiceRepo repository.HttpServiceRepository
 	config          *config.Config
 }
+
 func NewArtworkApiService(httpServiceRepo repository.HttpServiceRepository, config *config.Config) *ArtworkApiService {
 	return &ArtworkApiService{
 		httpServiceRepo: httpServiceRepo,

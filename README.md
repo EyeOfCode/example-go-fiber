@@ -77,3 +77,8 @@ clear_on_rebuild = true
 - pagination [x]
 - redis [x]
 - refresh token [x]
+
+## other
+
+$go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+$go install github.com/cosmtrek/air@latest
