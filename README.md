@@ -82,3 +82,4 @@ clear_on_rebuild = true
 
 $go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 $go install github.com/cosmtrek/air@latest
+$go install github.com/swaggo/swag/cmd/swag@latest
