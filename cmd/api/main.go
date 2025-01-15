@@ -132,7 +132,6 @@ func setupServer(cfg *config.Config) (*routes.Application, error) {
 // @contact.email champuplove@gmail.com
 
 // @host ${DOMAIN}
-
 // @BasePath /api/v1
 // @schemes http https
 // @securityDefinitions.apikey Bearer
